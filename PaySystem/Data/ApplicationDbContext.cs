@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using PaySystem.Models;
+using PaySystem.Models.BusinessModels;
 
 namespace PaySystem.Data
 {
@@ -18,5 +19,15 @@ namespace PaySystem.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
+
+        public DbSet<PaySystem.Models.BusinessModels.WorkLog> WorkLog { get; set; }
+
+        public DbSet<PaySystem.Models.BusinessModels.Worker> Worker { get; set; }
+
+        public DbSet<PaySystem.Models.BusinessModels.Card> Card { get; set; }
+
+        public DbSet<PaySystem.Models.BusinessModels.FeeInfo> FeeInfo { get; set; }
+
+        public DbSet<PaySystem.Models.BusinessModels.Check> Check { get; set; }
     }
 }
