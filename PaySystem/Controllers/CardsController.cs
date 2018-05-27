@@ -48,7 +48,7 @@ namespace PaySystem.Controllers
         // GET: Cards/Create
         public IActionResult Create()
         {
-            ViewData["WorkerId"] = new SelectList(_context.Worker, "Id", "Id");
+            ViewData["WorkerId"] = new SelectList(_context.Worker.Where(x => !_context.Card.Any(c => c.WorkerId == x.Id)), "Id", "Name");
             return View();
         }
 
@@ -65,7 +65,8 @@ namespace PaySystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["WorkerId"] = new SelectList(_context.Worker, "Id", "Id", card.WorkerId);
+
+            ViewData["WorkerId"] = new SelectList(_context.Worker.Where(x=> !_context.Card.Any(c => c.WorkerId == x.Id)), "Id", "Name", card.WorkerId);
             return View(card);
         }
 
@@ -82,7 +83,7 @@ namespace PaySystem.Controllers
             {
                 return NotFound();
             }
-            ViewData["WorkerId"] = new SelectList(_context.Worker, "Id", "Id", card.WorkerId);
+            ViewData["WorkerId"] = new SelectList(_context.Worker.Where(x => !_context.Card.Any(c => c.WorkerId == x.Id)), "Id", "Name", card.WorkerId);
             return View(card);
         }
 
@@ -118,7 +119,7 @@ namespace PaySystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["WorkerId"] = new SelectList(_context.Worker, "Id", "Id", card.WorkerId);
+            ViewData["WorkerId"] = new SelectList(_context.Worker.Where(x => !_context.Card.Any(c => c.WorkerId == x.Id)), "Id", "Name", card.WorkerId);
             return View(card);
         }
 

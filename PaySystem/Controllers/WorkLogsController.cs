@@ -22,7 +22,8 @@ namespace PaySystem.Controllers
         // GET: WorkLogs
         public async Task<IActionResult> Index()
         {
-            return View(await _context.WorkLog.ToListAsync());
+            var applicationDbContext = _context.WorkLog.Include(w => w.Card).Include(x=> x.Card.Worker);
+            return View(await applicationDbContext.ToListAsync());
         }
 
         // GET: WorkLogs/Details/5
@@ -34,6 +35,7 @@ namespace PaySystem.Controllers
             }
 
             var workLog = await _context.WorkLog
+                .Include(w => w.Card)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (workLog == null)
             {
@@ -46,6 +48,7 @@ namespace PaySystem.Controllers
         // GET: WorkLogs/Create
         public IActionResult Create()
         {
+            ViewData["CardId"] = new SelectList(_context.Card.Include(x => x.Worker).Select(x => new KeyValuePair<int, string>(x.Id, x.Worker.Name)), "Key", "Value");
             return View();
         }
 
@@ -62,6 +65,7 @@ namespace PaySystem.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CardId"] = new SelectList(_context.Card.Include(x => x.Worker).Select(x => new KeyValuePair<int, string>(x.Id, x.Worker.Name)), "Key", "Value", workLog.CardId);
             return View(workLog);
         }
 
@@ -78,6 +82,7 @@ namespace PaySystem.Controllers
             {
                 return NotFound();
             }
+            ViewData["CardId"] = new SelectList(_context.Card.Include(x=> x.Worker).Select(x=> new KeyValuePair<int, string>(x.Id, x.Worker.Name)), "Key", "Value", workLog.CardId);
             return View(workLog);
         }
 
@@ -113,6 +118,7 @@ namespace PaySystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["CardId"] = new SelectList(_context.Card.Include(x => x.Worker).Select(x => new KeyValuePair<int, string>(x.Id, x.Worker.Name)), "Key", "Value", workLog.CardId);
             return View(workLog);
         }
 
@@ -125,6 +131,7 @@ namespace PaySystem.Controllers
             }
 
             var workLog = await _context.WorkLog
+                .Include(w => w.Card)
                 .SingleOrDefaultAsync(m => m.Id == id);
             if (workLog == null)
             {
