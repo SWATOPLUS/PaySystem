@@ -1,4 +1,6 @@
-﻿@model PaySystem.Models.BusinessModels.Worker
+﻿@using PaySystem.Models.BusinessModels
+
+@model Worker
 
 @{
     ViewData["Title"] = "Create";
@@ -13,19 +15,13 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                <label asp-for="GlobalId" class="control-label"></label>
+                <select asp-for="GlobalId" class="form-control" asp-items="ViewBag.WorkerId"></select>
             </div>
             <div class="form-group">
                 <label asp-for="Job" class="control-label"></label>
                 <input asp-for="Job" class="form-control" />
                 <span asp-validation-for="Job" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="DateOfBirth" class="control-label"></label>
-                <input asp-for="DateOfBirth" class="form-control" />
-                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />

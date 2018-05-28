@@ -11,9 +11,10 @@ using System;
 namespace PaySystem.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180527171412_AddedGlobalIdToWorker")]
+    partial class AddedGlobalIdToWorker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -202,13 +203,7 @@ namespace PaySystem.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Period");
-
-                    b.Property<int>("WorkerId");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("WorkerId");
 
                     b.ToTable("Check");
                 });
@@ -315,14 +310,6 @@ namespace PaySystem.Data.Migrations
                 });
 
             modelBuilder.Entity("PaySystem.Models.BusinessModels.Card", b =>
-                {
-                    b.HasOne("PaySystem.Models.BusinessModels.Worker", "Worker")
-                        .WithMany()
-                        .HasForeignKey("WorkerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("PaySystem.Models.BusinessModels.Check", b =>
                 {
                     b.HasOne("PaySystem.Models.BusinessModels.Worker", "Worker")
                         .WithMany()

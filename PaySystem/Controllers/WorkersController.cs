@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,19 +11,33 @@ using PaySystem.Models.BusinessModels;
 
 namespace PaySystem.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class WorkersController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ForeignDbContext _foreignDbContext;
 
-        public WorkersController(ApplicationDbContext context)
+        public WorkersController(ApplicationDbContext context, ForeignDbContext foreignDbContext)
         {
             _context = context;
+            _foreignDbContext = foreignDbContext;
         }
 
         // GET: Workers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(DateTime? updateDate)
         {
-            return View(await _context.Worker.ToListAsync());
+            if (updateDate == null)
+            {
+                return View(await _context.Worker.ToListAsync());
+            }
+
+            var globals = _foreignDbContext.Worker
+                .Where(x => x.UpdateTimeDateTime >= updateDate)
+                .ToArray();
+
+            ViewBag.UpdateDate = updateDate;
+
+            return View(await _context.Worker.Where(x => globals.Any(g => g.Id == x.Id)).ToListAsync());
         }
 
         // GET: Workers/Details/5
@@ -46,6 +61,10 @@ namespace PaySystem.Controllers
         // GET: Workers/Create
         public IActionResult Create()
         {
+            var locals = _context.Worker.ToArray();
+
+            ViewBag.WorkerId = new SelectList(_foreignDbContext.Worker.Where(x => !locals.Any(w => w.GlobalId == x.Id)).ToArray(), "Id", "Name");
+
             return View();
         }
 
@@ -54,14 +73,23 @@ namespace PaySystem.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Job,DateOfBirth")] Worker worker)
+        public async Task<IActionResult> Create([Bind("GlobalId,Job")] Worker worker)
         {
-            if (ModelState.IsValid)
+            var globalWorker = _foreignDbContext.Worker.FirstOrDefault(x => x.Id == worker.GlobalId);
+
+            if (ModelState.IsValid && globalWorker != null && !_context.Worker.Any(x => x.GlobalId == worker.GlobalId))
             {
+                worker.DateOfBirth = globalWorker.DateOfBirth;
+                worker.Name = globalWorker.Name;
                 _context.Add(worker);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            var locals = _context.Worker.ToArray();
+
+            ViewData["WorkerId"] = new SelectList(_foreignDbContext.Worker.Where(x => !locals.Any(w => w.GlobalId == x.Id)), "Id", "Name", worker.Id);
+
             return View(worker);
         }
 
@@ -78,6 +106,9 @@ namespace PaySystem.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.GlobalModel = await _foreignDbContext.Worker.SingleOrDefaultAsync(m => m.Id == worker.GlobalId);
+
             return View(worker);
         }
 
@@ -97,7 +128,12 @@ namespace PaySystem.Controllers
             {
                 try
                 {
-                    _context.Update(worker);
+                    var e = _context.Worker.SingleOrDefault(x => x.Id == worker.Id);
+                    e.Job = worker.Job;
+                    e.Name = worker.Name;
+                    e.DateOfBirth = worker.DateOfBirth;
+
+                    _context.Update(e);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -113,6 +149,9 @@ namespace PaySystem.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.GlobalModel = await _foreignDbContext.Worker.SingleOrDefaultAsync(m => m.Id == worker.GlobalId);
+
             return View(worker);
         }
 

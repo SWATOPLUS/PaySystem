@@ -1,7 +1,9 @@
-﻿@model PaySystem.Models.BusinessModels.Worker
+﻿@using PaySystem.Models.BusinessModels
+@model Worker
 
 @{
     ViewData["Title"] = "Edit";
+    var globalModel = ViewBag.GlobalModel as GlobalWorker;
 }
 
 <h2>Edit</h2>
@@ -30,6 +32,24 @@
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <form>
+            <div class="form-group">
+                <label class="control-label">@nameof(globalModel.Name)</label>
+                <input class="form-control" value="@globalModel.Name" readonly />
+            </div>
+            <div class="form-group">
+                <label class="control-label">@nameof(globalModel.DateOfBirth)</label>
+                <input class="form-control" value="@globalModel.DateOfBirth" readonly />
+            </div>
+            <div class="form-group">
+                <label class="control-label">@nameof(globalModel.Biography)</label>
+                <textarea class="form-control" readonly>
+@globalModel.Biography
+</textarea>
             </div>
         </form>
     </div>

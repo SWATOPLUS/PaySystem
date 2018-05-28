@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using PaySystem.Data;
 using PaySystem.Models;
 using PaySystem.Models.AccountViewModels;
 using PaySystem.Services;
@@ -22,6 +23,7 @@ namespace PaySystem.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ApplicationDbContext _context;
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
 
@@ -29,12 +31,34 @@ namespace PaySystem.Controllers
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
+            ApplicationDbContext context,
             ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
+            _context = context;
+
+            var roles = _context.Roles;
+
+            if (!roles.Any(x => x.Name.Contains("admin")))
+            {
+                _context.Roles.Add(new IdentityRole { Name = "admin", NormalizedName = "admin" });
+                _context.SaveChanges();
+            }
+
+            if (!roles.Any(x => x.Name.Contains("acc")))
+            {
+                _context.Roles.Add(new IdentityRole { Name = "acc", NormalizedName = "acc" });
+                _context.SaveChanges();
+            }
+
+            if (!roles.Any(x => x.Name.Contains("time")))
+            {
+                _context.Roles.Add(new IdentityRole { Name = "time", NormalizedName = "time" });
+                _context.SaveChanges();
+            }        
         }
 
         [TempData]
@@ -49,6 +73,21 @@ namespace PaySystem.Controllers
 
             ViewData["ReturnUrl"] = returnUrl;
             return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Role(string role)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                throw new ApplicationException($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
+
+            await _userManager.AddToRoleAsync(user, role);
+
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

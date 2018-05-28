@@ -2,12 +2,12 @@ using System;
 
 namespace PaySystem.Models.BusinessModels
 {
-    public class Worker
+    public class GlobalWorker
     {
         public int Id { get; set; }
-        public int GlobalId { get; set; }
         public string Name { get; set; }
-        public string Job { get; set; }
         public DateTime DateOfBirth { get; set; }
+        public string Biography { get; set; }
+        public DateTime UpdateTimeDateTime { get; set; }
     }
 }

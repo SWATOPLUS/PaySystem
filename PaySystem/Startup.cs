@@ -29,6 +29,9 @@ namespace PaySystem
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddDbContext<ForeignDbContext>(options =>
+                 options.UseSqlServer(Configuration.GetConnectionString("ForeignConnection")));
+
             services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
                 options.Password.RequiredLength = 1;
